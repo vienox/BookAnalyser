@@ -2,14 +2,12 @@ services:
   backend:
     build: .
     container_name: opinie_backend
-    environment:
-      DATABASE_URL: postgresql+asyncpg://user:pass@db:5432/opinie_db
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     depends_on:
       - db
-
   db:
     image: postgres:16
     container_name: opinie_db
