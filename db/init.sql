@@ -1,7 +1,7 @@
 CREATE TABLE ksiazki (
   id SERIAL PRIMARY KEY,
   tytul TEXT NOT NULL,
-  wydawnictwo TEXT,
+  wydawnictwo TEXT NOT NULL,
   przedmiot TEXT
 );
 
@@ -13,12 +13,13 @@ CREATE TABLE opinie (
   data_dodania TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE fragmenty_opinii (
+CREATE TABLE analizy_opinii (
   id SERIAL PRIMARY KEY,
   opinia_id INTEGER NOT NULL REFERENCES opinie(id) ON DELETE CASCADE,
   temat TEXT,
   sentyment TEXT,
-  fragment TEXT
+  plus TEXT,
+  minus TEXT
 );
 
 INSERT INTO ksiazki (tytul, wydawnictwo, przedmiot)
