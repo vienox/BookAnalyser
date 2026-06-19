@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.ai.opinie import analizuj_opinie
+from app.ai.opinieai import analizuj_opinie
 from app.database.session import get_db
 from app.models.opiniesql import Opinia
 from app.models.raportysql import AnalizaOpinii
