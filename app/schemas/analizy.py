@@ -1,4 +1,16 @@
-from pydantic import BaseModel, ConfigDict
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+Sentyment = Literal["Pozytywny", "Negatywny", "Neutralny", "Mieszany"]
+
+
+class AnalizaAIResult(BaseModel):
+    temat: str = Field(min_length=1)
+    sentyment: Sentyment
+    plus: str = Field(min_length=1)
+    minus: str = Field(min_length=1)
 
 
 class AnalizaRead(BaseModel):

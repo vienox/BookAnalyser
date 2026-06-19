@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.ai.opinieai import analizuj_opinie
+from app.ai.opinieai import (
+    OpenAIConfigError,
+    OpenAIResponseValidationError,
+    analizuj_opinie,
+)
 from app.database.session import get_db
 from app.models.opiniesql import Opinia
 from app.models.raportysql import AnalizaOpinii
@@ -23,14 +27,25 @@ async def analizuj_opinie_endpoint(
             detail="Opinia nie istnieje.",
         )
 
-    wynik = await analizuj_opinie(opinia.tresc)
+    try:
+        wynik = await analizuj_opinie(opinia.tresc)
+    except OpenAIConfigError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(exc),
+        ) from exc
+    except OpenAIResponseValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        ) from exc
 
     analiza = AnalizaOpinii(
         opinia_id=opinia.id,
-        temat=wynik.get("temat"),
-        sentyment=wynik.get("sentyment"),
-        plus=wynik.get("plus"),
-        minus=wynik.get("minus"),
+        temat=wynik.temat,
+        sentyment=wynik.sentyment,
+        plus=wynik.plus,
+        minus=wynik.minus,
     )
 
     db.add(analiza)
