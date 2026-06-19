@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class KsiazkaCreate(BaseModel):
@@ -12,5 +12,3 @@ class KsiazkaRead(BaseModel):
     tytul: str
     wydawnictwo: str
     przedmiot: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)
