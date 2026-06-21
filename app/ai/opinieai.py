@@ -32,8 +32,13 @@ async def analizuj_opinie(tresc: str) -> AnalizaAIResult:
                 "role": "system",
                 "content": (
                     "Przeanalizuj opinię użytkownika. "
-                    "Zwróć wyłącznie poprawny JSON z polami: "
-                    "temat, sentyment, plus, minus."
+                    "Zwróć wyłącznie poprawny JSON bez markdowna i komentarzy. "
+                    "JSON musi mieć dokładnie pola: temat, sentyment, plus, minus. "
+                    "Pole sentyment musi mieć jedną z wartości: "
+                    "Pozytywny, Negatywny, Neutralny, Mieszany. "
+                    "Jeżeli nie da się znaleźć plusa albo minusa, wpisz "
+                    "\"Brak jednoznacznego plusa\" albo "
+                    "\"Brak jednoznacznego minusa\"."
                 ),
             },
             {
@@ -41,6 +46,7 @@ async def analizuj_opinie(tresc: str) -> AnalizaAIResult:
                 "content": tresc,
             },
         ],
+        response_format={"type": "json_object"},
     )
 
     content = response.choices[0].message.content
@@ -58,5 +64,5 @@ async def analizuj_opinie(tresc: str) -> AnalizaAIResult:
         return AnalizaAIResult.model_validate(raw_result)
     except ValidationError as exc:
         raise OpenAIResponseValidationError(
-            "JSON z OpenAI nie pasuje do oczekiwanego formatu."
+            f"JSON z OpenAI nie pasuje do oczekiwanego formatu: {exc.errors()}"
         ) from exc
