@@ -3,6 +3,8 @@ from collections import defaultdict
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.ai.opinieai import OpenAIConfigError, OpenAIResponseValidationError
+from app.ai.rekomendacjeai import dopasuj_rekomendacje_ai
 from app.models.ksiazkisql import Ksiazka
 from app.models.opiniesql import Opinia
 from app.models.raportysql import AnalizaOpinii
@@ -110,4 +112,11 @@ async def przygotuj_rekomendacje(
         )
 
     rekomendacje.sort(key=lambda item: item.wynik, reverse=True)
-    return RekomendacjeResponse(rekomendacje=rekomendacje[: data.limit])
+    rekomendacje = rekomendacje[: data.limit]
+
+    try:
+        ai_rekomendacje = await dopasuj_rekomendacje_ai(data, rekomendacje)
+    except (OpenAIConfigError, OpenAIResponseValidationError):
+        return RekomendacjeResponse(rekomendacje=rekomendacje, tryb="regulowy")
+
+    return RekomendacjeResponse(rekomendacje=ai_rekomendacje, tryb="ai")
